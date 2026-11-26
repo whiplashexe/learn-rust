@@ -31,3 +31,44 @@ pub fn even_odd() -> () {
     let number = number_input("Input Number: ");
     println!("{}", if number % 2 == 0 {"Even"} else {"Odd"});
 }
+
+pub fn looping() {
+    let count = number_input("input length: ");
+    for i in 1..count + 1 {
+        if i % 2 == 0 && i % 3 == 0 {
+            println!("FizzBuzz");
+        } else if i % 2 == 0 {
+            println!("Fizz");
+        } else if i % 3 == 0 {
+            println!("Buzz");
+        } else{
+            println!("{i}")
+        }
+    }
+}
+
+pub fn triangle() {
+    let height: i32 = 5;
+
+    for i in 1..=height {
+        for _ in (1..=i).rev() {
+            print!("*");
+        }
+        println!();
+    }
+}
+
+fn new_input(prompt: &str) -> String {
+    print!("{prompt}");
+    io::stdout().flush().unwrap();
+    let mut new = String::new();
+    io::stdin().read_line(&mut new).unwrap();
+    return new.to_string();
+}
+
+// pub fn time_table() {
+//     let number: i32 = number_input("Input number: ");
+//     for i in 1..11 {
+//         println!("{} x {} = {}", number, i, number * i);
+//     }
+// }
