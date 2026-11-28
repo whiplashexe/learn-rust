@@ -2,6 +2,158 @@
 
 > **Target hari ini:** bisa mengatur alur program dengan percabangan (`if`, `else`, `match`) dan perulangan (`loop`, `while`, `for`).
 
+## 📌 Recap Day 02
+
+Ringkasan semua control flow di Rust. Penjelasan lengkap tiap bagian ada di bawah.
+
+### A. Percabangan
+
+| Jenis | Bentuk | Kapan dipakai |
+|---|---|---|
+| **If** | `if kondisi { ... }` | Jalankan kode hanya jika kondisi `true` |
+| **If Else** | `if kondisi { ... } else { ... }` | Dua kemungkinan |
+| **Else If** | `if a { } else if b { } else { }` | Banyak kemungkinan, dicek berurutan dari atas |
+| **Nested If** | `if a { if b { } }` | Kondisi di dalam kondisi (maksimal 2 tingkat agar mudah dibaca) |
+| **If Expression** | `let x = if a { 1 } else { 2 };` | Pengganti ternary `? :`. Wajib ada `else` dan semua cabang bertipe sama |
+| **If Let** | `if let Ok(n) = s.parse::<i32>() { }` | Cek satu pola (`Option`/`Result`) |
+| **Match** | `match x { 1 => .., 2 \| 3 => .., _ => .. }` | Satu nilai dibandingkan dengan banyak pola. Wajib mencakup semua kemungkinan |
+| **Match Guard** | `match x { n if n < 0 => .., _ => .. }` | Pola + kondisi tambahan |
+
+```rust
+let nilai = 85;
+
+// If Else If
+if nilai >= 90 { println!("A"); }
+else if nilai >= 80 { println!("B"); }
+else { println!("C"); }
+
+// If Expression
+let status = if nilai >= 75 { "lulus" } else { "remedial" };
+
+// Match
+let grade = match nilai {
+    90..=100 => 'A',
+    80..=89 => 'B',
+    _ => 'C',
+};
+```
+
+### B. Perulangan
+
+| Jenis | Kondisi dicek | Minimal jalan | Berhenti saat | `break nilai` | Cocok untuk |
+|---|---|---|---|---|---|
+| **`loop`** | – | 1 kali | Ada `break` | ✅ | Menu, input ulang, retry |
+| **`while`** | **Awal** putaran | 0 kali | Kondisi `false` | ❌ | Selama kondisi benar, jumlah putaran tidak pasti |
+| **`while let`** | Awal putaran | 0 kali | Pola tidak cocok | ❌ | Ambil isi sampai habis (`pop()`) |
+| **Do While** ⚠️ | **Akhir** putaran | **1 kali** | Kondisi `false` | ✅ | Pasti jalan dulu, baru dicek |
+| **`for`** | – | 0 kali | Elemen habis | ❌ | Range, array, Vec, string (**paling sering dipakai**) |
+
+#### `loop`
+```rust
+let mut n = 0;
+let hasil = loop {
+    n += 1;
+    if n == 5 { break n * 10; }   // loop bisa mengembalikan nilai
+};                                // hasil = 50
+```
+
+#### `while`
+```rust
+let mut n = 3;
+while n > 0 {                     // dicek sebelum jalan
+    println!("{n}");
+    n -= 1;
+}
+```
+
+#### ⚠️ Do While: tidak ada di Rust
+Rust **tidak punya** `do { } while (kondisi);` seperti C, Java, JavaScript, atau PHP. Penggantinya adalah **`loop` dengan `break` di akhir**:
+```rust
+let mut x = 10;
+loop {
+    println!("x = {x}");          // tetap jalan 1 kali walaupun x sudah 10
+    x += 1;
+    if x >= 5 { break; }          // kondisi dicek di AKHIR
+}
+```
+Bandingkan dengan `while`:
+```rust
+let mut y = 10;
+while y < 5 {                     // dicek di AWAL → langsung false
+    println!("y = {y}");          // tidak pernah jalan
+    y += 1;
+}
+```
+
+> 📝 Function `do_while()` di `control.rs` sebenarnya adalah **`while` biasa**, karena kondisi `index < data.len()` dicek di awal. Untuk mengulang array, cara paling idiomatik adalah `for d in data { ... }`.
+
+#### `for`
+```rust
+for i in 1..=5 { }                          // 1 sampai 5
+for i in (1..=5).rev() { }                  // 5 sampai 1
+for i in (0..=10).step_by(2) { }            // 0 2 4 6 8 10
+for b in &buah { }                          // isi array/Vec (pinjam)
+for (i, b) in buah.iter().enumerate() { }   // index + isi
+for x in &mut angka { *x += 1; }            // ubah isi
+for c in "Halo".chars() { }                 // per huruf
+for _ in 0..3 { }                           // ulang 3 kali
+```
+
+### C. Lompatan
+
+| Kata kunci | Fungsi |
+|---|---|
+| `break` | Hentikan loop |
+| `break nilai` | Hentikan `loop` sambil mengembalikan nilai (hanya `loop`) |
+| `continue` | Lewati sisa kode, lanjut ke putaran berikutnya |
+| `'label: for ...` + `break 'label` | Keluar dari loop luar pada loop bersarang |
+| `return` | Keluar dari function (ikut keluar dari semua loop) |
+
+### D. Range
+
+| Range | Isi | Keterangan |
+|---|---|---|
+| `1..5` | 1 2 3 4 | Angka akhir **tidak** ikut |
+| `1..=5` | 1 2 3 4 5 | Angka akhir **ikut** |
+| `(1..=5).rev()` | 5 4 3 2 1 | Mundur |
+| `(0..10).step_by(3)` | 0 3 6 9 | Lompat |
+| `'a'..='e'` | a b c d e | Range huruf |
+| `5..1` | *(kosong)* | Bukan mundur, pakai `.rev()` |
+
+### E. Perbandingan dengan bahasa lain
+
+| | Rust | C / Java / JS / PHP |
+|---|---|---|
+| Kurung kondisi `if (x)` | ❌ Tidak perlu | Wajib |
+| Kurung kurawal `{}` | **Wajib** | Opsional untuk 1 baris |
+| Kondisi harus `bool` | ✅ (`if 1 {}` error) | Tidak (`if (1)` boleh) |
+| Ternary `a ? b : c` | ❌ → `if a { b } else { c }` | ✅ |
+| `switch` | ❌ → `match` | ✅ |
+| `for (i = 0; i < n; i++)` | ❌ → `for i in 0..n` | ✅ |
+| `do { } while ()` | ❌ → `loop` + `break` | ✅ |
+| `loop` tanpa kondisi | ✅ `loop { }` | `while (true) { }` |
+| Loop mengembalikan nilai | ✅ `break nilai` | ❌ |
+
+### F. Latihan yang sudah dikerjakan (`src/control.rs`)
+
+| Function | Konsep | Catatan |
+|---|---|---|
+| `input()` | Membaca input + `trim()` | ✅ |
+| `number_input()` | `loop` + `match` untuk input ulang | ✅ Pola do while yang benar |
+| `ifelse()` | `if` + `const` | 💡 Tambahkan `else` untuk nilai di bawah `MINIMUM` |
+| `even_odd()` | If expression | ✅ |
+| `do_while()` | `while` + index | ⚠️ Sebenarnya `while`, bukan do while |
+| `looping()` | `for` + `else if` (FizzBuzz) | 💡 `1..count + 1` → `1..=count`. FizzBuzz standar memakai kelipatan 3 & 5 |
+| `triangle()` | Nested `for` | 💡 `.rev()` tidak berpengaruh, bisa diganti `"*".repeat(i as usize)` |
+| `time_table()` | `for` + range | 💡 Masih di-comment. `1..11` → `1..=10` |
+
+**Hasil `cargo clippy`:**
+- `unneeded unit return type` (3×): hapus `-> ()`
+- `unneeded return statement` di `new_input()`: hapus `return` dan `;`
+- `function is never used`: function yang tidak dipanggil di `main.rs`
+
+---
+
 ## Daftar Isi
 1. [Apa itu Control Flow?](#1-apa-itu-control-flow)
 2. [Operator Perbandingan & Logika](#2-operator-perbandingan--logika)

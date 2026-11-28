@@ -4,6 +4,7 @@ fn main() {
     // control::ifelse();
     // control::even_odd();
     // control::looping();
-    control::triangle();
+    // control::triangle();
     // control::time_table();
+    // control::do_while();
 }

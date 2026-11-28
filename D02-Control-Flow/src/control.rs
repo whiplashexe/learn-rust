@@ -32,6 +32,15 @@ pub fn even_odd() -> () {
     println!("{}", if number % 2 == 0 {"Even"} else {"Odd"});
 }
 
+pub fn do_while() -> () {
+    let data: [i32;5] = [1,2,3,5,4];
+    let mut index = 0;
+    while index < data.len() {
+        println!("Data: {}", data[index]);
+        index += 1;
+    }
+}
+
 pub fn looping() {
     let count = number_input("input length: ");
     for i in 1..count + 1 {
